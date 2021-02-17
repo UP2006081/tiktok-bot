@@ -50,8 +50,7 @@ async def on_message(message):
       if url != urltwo:
         await message.channel.send(urltwo)
         url = urltwo
-      else:
-        await message.channel.send("no new tik tok")
+
 
 
 client.run(Token)
