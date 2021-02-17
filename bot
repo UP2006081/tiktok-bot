@@ -1,0 +1,57 @@
+import discord
+import os
+from TikTokApi import TikTokApi
+from dotenv import load_dotenv
+
+load_dotenv()
+Token = os.getenv("DISCORD_TOKEN")
+
+client = discord.Client()
+
+
+def simple_dict(tiktok_dict):
+  user_name = tiktok_dict['author']['uniqueId']
+  video_id = tiktok_dict['id']
+  returnval = 'https://www.tiktok.com/@{}/video/{}?lang=en'.format(user_name, video_id)
+  return returnval
+
+
+def getrecent(username):
+  os.system('python -m playwright install')
+
+  verifyFp = "verify_kl5bb99h_U3suiDBK_VUg4_4B8o_AFtP_pjCH4anX7nrJ"
+  api = TikTokApi.get_instance(custom_verifyFp=verifyFp, use_test_endpoints=True, use_selenium=True)
+
+  n_videos = 1
+  user_videos = api.byUsername(username, count=n_videos)
+
+  discordreturn = ""
+
+  for i in user_videos:
+    url = []
+    for v in simple_dict(i):
+      url.append(v)
+    discordreturn = ("".join(url))
+  return discordreturn
+
+@client.event
+async def on_ready():
+  print("we have logged in as {0.user}".format(client))
+
+@client.event
+async def on_message(message):
+  if message.author == client.user:
+    return
+
+  if message.content.startswith("%setuser"):
+    url = ""
+    while True:
+      urltwo = getrecent(message.content[9:])
+      if url != urltwo:
+        await message.channel.send(urltwo)
+        url = urltwo
+      else:
+        await message.channel.send("no new tik tok")
+
+
+client.run(Token)
